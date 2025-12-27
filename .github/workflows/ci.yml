@@ -2,50 +2,53 @@ name: AGW Integrity Check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   integrity-check:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Verify Core Files
-      run: |
-        if [ ! -f "GEMINI.md" ]; then
-          echo "❌ Error: GEMINI.md not found!"
-          exit 1
-        fi
-        if [ ! -f "README.md" ]; then
-          echo "❌ Error: README.md not found!"
-          exit 1
-        fi
-        echo "✅ Core files present."
+      - name: Debug Directory Structure
+        run: ls -R
 
-    - name: Verify Agent Structure
-      run: |
-        if [ ! -d ".agent/rules" ]; then
-          echo "❌ Error: .agent/rules directory missing!"
-          exit 1
-        fi
-        if [ ! -d ".agent/workflows" ]; then
-          echo "❌ Error: .agent/workflows directory missing!"
-          exit 1
-        fi
-        echo "✅ Agent structure valid."
+      - name: Verify Core Files
+        run: |
+          if [ ! -f "GEMINI.md" ]; then
+            echo "❌ Error: GEMINI.md not found!"
+            exit 1
+          fi
+          if [ ! -f "README.md" ]; then
+            echo "❌ Error: README.md not found!"
+            exit 1
+          fi
+          echo "✅ Core files present."
 
-    - name: Check Content Security (Basic)
-      run: |
-        # Simply check if any file contains "password" or "api_key" (case insensitive)
-        # excluding git and typical safe locations
-        if grep -rNi "api_key" . --exclude-dir=.git --exclude=*.md; then
-          echo "⚠️ Warning: Possible API Key reference found (outside markdown)."
-          # specific checks can fail the build if strict
-        fi
-        echo "✅ Security check passed."
+      - name: Verify Agent Structure
+        run: |
+          if [ ! -d ".agent/rules" ]; then
+            echo "❌ Error: .agent/rules directory missing!"
+            exit 1
+          fi
+          if [ ! -d ".agent/workflows" ]; then
+            echo "❌ Error: .agent/workflows directory missing!"
+            exit 1
+          fi
+          echo "✅ Agent structure valid."
 
-    - name: All Green
-      run: echo "🎉 Antigravity Workflows integrity validated!"
+      - name: Check Content Security (Basic)
+        run: |
+          # Simply check if any file contains "password" or "api_key" (case insensitive)
+          # excluding git and typical safe locations
+          if grep -rNi "api_key" . --exclude-dir=.git --exclude=*.md; then
+            echo "⚠️ Warning: Possible API Key reference found (outside markdown)."
+            # specific checks can fail the build if strict
+          fi
+          echo "✅ Security check passed."
+
+      - name: All Green
+        run: echo "🎉 Antigravity Workflows integrity validated!"
